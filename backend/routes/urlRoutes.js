@@ -6,6 +6,7 @@ const { nanoid } = require('nanoid');
 const BASE_URL = 'http://localhost:3000'
 router.post('/shorten', async (req, res) => {
     const {longURL} = req.body;
+    
 
     // basic validation
     if(!longURL){
