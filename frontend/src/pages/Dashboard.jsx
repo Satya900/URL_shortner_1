@@ -1,20 +1,25 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useUser } from "@clerk/clerk-react"; // Clerk hook
 
 const Dashboard = () => {
   const [urls, setUrls] = useState([]);
+  const { user } = useUser(); // current Clerk user
 
   useEffect(() => {
-    axios.get("http://localhost:3000/all")
-      .then(res => setUrls(res.data))
-      .catch(err => {
-        console.error("Error fetching URLs:", err);
-      });
-  }, []);
+    if (!user) return;
+
+    // Fetch only URLs created by this user
+    axios.get(`http://localhost:3000/all/${user.id}`)
+    .then(res => setUrls(res.data))
+    .catch(err => {
+      console.error("Error fetching URLs:", err);
+    });
+  }, [user]);
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
-      <h2 className="text-2xl font-bold mb-6 text-center dark:text-white">📊 URL Dashboard</h2>
+      <h2 className="text-2xl font-bold mb-6 text-center dark:text-white">📊 Your URL Dashboard</h2>
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden">
           <thead className="bg-indigo-600 text-white dark:bg-indigo-700">
@@ -56,6 +61,11 @@ const Dashboard = () => {
             ))}
           </tbody>
         </table>
+        {urls.length === 0 && (
+          <p className="text-center text-gray-400 mt-6">
+            No URLs found. Start shortening to see them here!
+          </p>
+        )}
       </div>
     </div>
   );

@@ -1,14 +1,21 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useUser } from '@clerk/clerk-react';
 
 const Home = () => {
   const [longURL, setLongURL] = useState('');
+  const [customCode, setCustomCode] = useState('');
   const [shortURL, setShortURL] = useState('');
+  const { user } = useUser();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:3000/shorten', { longURL });
+      const res = await axios.post('http://localhost:3000/shorten', {
+        longURL,
+        customCode,
+        userId: user?.id,
+      });
       setShortURL(res.data.shortURL);
     } catch (err) {
       console.error('Shortening failed', err);
@@ -20,7 +27,6 @@ const Home = () => {
       <h2 className="text-xl font-semibold text-center mb-4 text-gray-800 dark:text-white">
         Paste a long URL to Minify it 🔗
       </h2>
-      
       <form onSubmit={handleSubmit} className="space-y-4">
         <input
           type="url"
@@ -28,11 +34,18 @@ const Home = () => {
           onChange={(e) => setLongURL(e.target.value)}
           placeholder="https://example.com"
           required
-          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full px-4 py-2 border rounded-md bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200"
+        />
+        <input
+          type="text"
+          value={customCode}
+          onChange={(e) => setCustomCode(e.target.value)}
+          placeholder="Custom short code (optional)"
+          className="w-full px-4 py-2 border rounded-md bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200"
         />
         <button
           type="submit"
-          className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition-colors duration-200"
+          className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700"
         >
           Minify URL
         </button>
